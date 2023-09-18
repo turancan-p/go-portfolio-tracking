@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/turancan-p/go-portfolio-tracking/pkg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,13 +18,9 @@ type Config struct {
 	SSLMode  string
 }
 
-type DbInstance struct {
-	Db *gorm.DB
-}
+var database *gorm.DB
 
-var Database DbInstance
-
-func NewConnection() {
+func Connect() {
 	config := &Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
@@ -47,13 +42,13 @@ func NewConnection() {
 		log.Fatal("Database conntection failed", err.Error())
 	}
 
-	log.Println("Connected to database successfully")
 	db.Logger = logger.Default.LogMode(logger.Info)
-	log.Println("Migrations running")
 
-	err = models.DBMigrate(db)
-	if err != nil {
-		log.Fatal("Database migrations failed", err.Error())
-	}
-	Database = DbInstance{Db: db}
+	log.Println("Connected to database successfully")
+
+	database = db
+}
+
+func GetDB() *gorm.DB {
+	return database
 }
